@@ -6,13 +6,13 @@
 package frac
 
 import (
+	"errors"
 	"fmt"
-    "errors"
 )
 
 //A Frac is a fraction.
 type Frac struct {
-	num, den uint64
+	num, den uint64 //无符整数
 	positive bool
 }
 
@@ -25,7 +25,7 @@ func abs(i int64) uint64 {
 	return uint64(-i)
 }
 
-func gcd(x, y uint64) uint64 {
+func GCD(x, y uint64) uint64 {
 	for y != 0 {
 		x, y = y, x%y
 	}
@@ -56,7 +56,7 @@ func (f *Frac) simplify() {
 		f.den = 1 //f.String() from outputing "-0"
 		return
 	}
-	common := gcd(f.num, f.den)
+	common := GCD(f.num, f.den)
 	f.num /= common
 	f.den /= common
 }
@@ -94,6 +94,7 @@ func (f *Frac) Plus(other *Frac) *Frac {
 }
 
 //f.Negative() returns -f.
+//求相反数
 func (f *Frac) Negative() *Frac {
 	return &Frac{f.num, f.den, !f.positive}
 }
@@ -158,4 +159,18 @@ func (f *Frac) Mixed() string {
 		return fmt.Sprintf("%d %d/%d", f.num/f.den, f.num%f.den, f.den)
 	}
 	return fmt.Sprintf("-%d %d/%d", f.num/f.den, f.num%f.den, f.den)
+}
+
+//得到整数部分3+1/2，将返回3，-(3+1/2),返回-3
+func (f *Frac) Int() int64 {
+	ret := int64(f.num / f.den)
+	if !f.positive {
+		ret *= -1
+	}
+	return ret
+}
+
+//得到无整数的分数部分 3+1/2，将返回1/2,-(3+1/2),返回-（1/2）
+func (f *Frac) ProperFrac() *Frac {
+	return &Frac{f.num % f.den, f.den, f.positive}
 }
